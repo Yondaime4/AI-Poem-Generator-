@@ -1,0 +1,116 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Feb 13 07:55:34 2015
+
+@author: Sami
+"""
+import nltk, string
+def rhyme(inp, level):
+     entries = nltk.corpus.cmudict.entries()
+     syllables = [(word, syl) for word, syl in entries if word == inp]
+     rhymes = []
+     for (word, syllable) in syllables:
+             rhymes += [word for word, pron in entries if pron[-level:] == syllable[-level:]]
+     return set(rhymes)
+     
+def doTheyRhyme ( word1, word2 ):
+  # first, we don't want to report 'glue' and 'unglue' as rhyming words
+  # those kind of rhymes are LAME
+  if word1.find ( word2 ) == len(word1) - len ( word2 ):
+      return False
+  if word2.find ( word1 ) == len ( word2 ) - len ( word1 ): 
+      return False
+
+  return word1 in rhyme ( word2, 1 )
+  
+def syllables(word):
+    count = 0
+    vowels = 'aeiouy'
+    word = word.lower().strip(".:;?!")
+    if word[0] in vowels:
+        count +=1
+    for index in range(1,len(word)):
+        if word[index] in vowels and word[index-1] not in vowels:
+            count +=1
+    if word.endswith('e'):
+        count -= 1
+    if word.endswith('le'):
+        count+=1
+    if count == 0:
+        count +=1
+    return count
+
+#word = "long John Nguyen";        
+#print(syllables(word));  
+
+syllable_count = 0; #total syllables of the big_ass_string
+line = 0 #approximate number of syllables each line should equal  
+line_count = 0 #keeps count of what line currently 
+line_syllables = 0 #used to count syllables of words to make proper lines
+
+words = ""; #String with tokenized words from the big_ass_string
+line1 = " "
+line2 = ""
+line3 = ""
+line4 = ""
+
+big_ass_string = "The cat went meowing home through a medow. The dog came running thorugh in a rush. The cat stealthly hid in the brush. Then the dog roared out a woof that made a bellow.";
+#big_ass_string = "My name is felix, and I am happy. Let us hope this works, or we are screwed.";
+#big_ass_string = "Unless we finish this final project, we are so screwed and I will not get my A that I want. However, because I am determined to get this done, I believe this will work out for the best.";
+#big_ass_string = "One day, or another, Im gonna find you, and imma get you, get you, get you, get you, but if you find me before I do, then imma run, and run, and run, and run."
+
+#Tokenize the big_ass_string's words to use in the words string
+words = nltk.word_tokenize(big_ass_string);
+ 
+#counts the total syllables in the words string
+for word in words:
+    if word != " " and word != "." and word != ":" and word != ";" and word != "," and word != "?" and word != "!": 
+       syllable_count += syllables(word);     
+
+#For our 6 line poetry, we need to make each line within a range of a sixth of the total syllables of the big_ass_string    
+line =  syllable_count/4
+
+for word in words:
+    #Keeping track of number of syllables without punctuation for proper line construction
+    if word != " " and word != "." and word != ":" and word != ";" and word != "," and word != "?" and word != "!":
+       line_syllables += syllables(word)
+    
+    #Depending on current lines finished based on the appropriate syllables for a line, the tokenized words get added to the proper string lines with proper punctuation         
+    if line_count == 0:
+        if word == " " or word == "." or word == ":" or word == ";" or word == "," or word == "?" or word == "!":   
+            line1 = line1[:-1]        
+        line1 += word
+        line1 += " "
+    if line_count == 1:
+        if word == " " or word == "." or word == ":" or word == ";" or word == "," or word == "?" or word == "!":   
+           line2 = line2[:-1]
+        line2 += word
+        line2 += " "
+    if line_count == 2:
+        if word == " " or word == "." or word == ":" or word == ";" or word == "," or word == "?" or word == "!":   
+            line3 = line3[:-1]        
+        line3 += word
+        line3 += " "
+    if line_count == 3:
+        if word == " " or word == "." or word == ":" or word == ";" or word == "," or word == "?" or word == "!":   
+             line4 = line4[:-1]        
+        line4 += word
+        line4 += " "
+     
+    #if its not currently constructing the final line, there is ending punctuation of the current line, and the line's syllables are within the appropriate range of syllables, the line syllable count is reset to zero and the line count is updated to construct for the new line
+    # The rest of the tokenized words get put into the final line 
+    if  line_syllables >= (line-(line/3)) and line_syllables <= (line+(line/3)) and line_count != 3 and (word == " " or word == "." or word == ":" or word == ";" or word == "," or word == "?" or word == "!"):
+          line_syllables = 0
+          line_count +=1
+          
+              
+line_count +=1 
+# printing out each line individually         
+print(line_count)
+print(line1)
+print(" ")
+print(line2)
+print(" ")
+print(line3)
+print(" ")
+print(line4)
